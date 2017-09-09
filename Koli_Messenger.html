@@ -1,0 +1,249 @@
+<html>
+	<head>
+		<style>
+			.Sent
+			{
+				display : inline-block;
+				 min-width: 80px;
+				background-color : #00BFFF;
+				margin-left : 40%;
+				padding : 7px;
+				border-radius : 10px;
+			}
+			.Received
+			{
+				display : inline-block;
+				 min-width: 80px;
+				background-color : #66CDAA;
+				margin-right : 40%;	
+				padding : 7px;
+				border-radius : 10px;
+			}
+			.DateMsg
+			{
+				display : inline-block;
+				background-color : #B0C4DE;
+				padding : 7px;
+				margin-top:10px;
+				margin-left : 45%;
+				border-radius : 10px;
+			}
+		</style>
+        <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
+        <script>
+            var config = {
+                            apiKey: "AIzaSyAJegjQjOd1NsnNd1wQamwM5__QE1zIPzs",
+                            authDomain: "chatdb-4d0c9.firebaseapp.com",
+                            databaseURL: "https://chatdb-4d0c9.firebaseio.com",
+                            projectId: "chatdb-4d0c9",
+                            storageBucket: "chatdb-4d0c9.appspot.com",
+                            messagingSenderId: "187782448016"
+                        };
+            firebase.initializeApp(config);
+            var db = firebase.database();
+			var chatName = "SaRaThy";
+            var ref = db.ref(chatName);
+            ref.on('value',receiveMessage,errorMsg);
+			var mdate;			
+			var username;
+
+            function startChat()
+            {
+				username = document.getElementById("text1").value;
+				document.cookie = chatName+"_username="+username+"; expires=Thu, 18 Dec 2017 12:00:00 UTC";
+                document.getElementById("MyName").style.display="none";
+                document.getElementById("ChatRoom").style.display="block";
+            }
+            function sendMessage()
+            {
+				var msg = {
+						  	msg : document.getElementById("msg1").value,
+							time : getCurrentTime(),
+						  }
+				if(getCurrentDate()!=mdate)
+				{
+					msg.date = getCurrentDate();
+				}
+                var data = {
+                                name : document.getElementById("text1").value,
+                                value : msg
+                           };
+                ref.push(data);
+                document.getElementById("msg1").value="";
+            }
+            function receiveMessage(msg1)
+            {
+                var msg = msg1.val();
+                var keys = Object.keys(msg);
+                //document.getElementById("ChatWindow").innerHTML="";
+                var notifyText;
+                var senderV;
+				var msgCount = getCookie(chatName+"_msg_count");
+				console.log("--->>> "+msgCount+"-----New---- <<<---"+keys.length);
+                for(i=msgCount;i<keys.length;i++)
+                {console.log("--->>> "+msgCount);
+                    var sender = msg[keys[i]].name;
+                    var message = msg[keys[i]].value.msg;
+					var time = msg[keys[i]].value.time;
+					if(msg[keys[i]].value.date)
+					{
+						mdate = msg[keys[i]].value.date;
+						var dateNode = document.createElement("SPAN");
+						var txtNode = document.createTextNode(mdate==getCurrentDate()?"Today":mdate);
+						dateNode.appendChild(txtNode);
+						dateNode.className = "DateMsg";
+						document.getElementById("ChatWindow").appendChild(dateNode);
+					}
+                    var node = document.createElement("DIV");
+					node.style.padding="5px";
+					var textOrDiv="";
+					var bgnode = document.createElement("DIV");
+					var timeNode = document.createElement("SPAN");
+					timeNode.style.opacity = "0.3";
+					timeNode.style.fontSize = "80%";
+					timeNode.appendChild(document.createTextNode("  "+time));
+		    		if(document.getElementById("text1").value == sender)
+		    		{
+						bgnode.className="Sent";
+						node.align="right";
+						textOrDiv = document.createElement("DIV");
+						textOrDiv.appendChild(document.createTextNode(message));
+						bgnode.align="left";
+		    		}
+					else
+					{
+						bgnode.className="Received";
+						textOrDiv = document.createElement("DIV");
+						var s1 = document.createElement("SPAN");
+						s1.style.fontWeight="bold";
+						var t1 = document.createTextNode(sender+" : ");
+						s1.appendChild(t1);
+						textOrDiv.appendChild(s1);
+                    	textOrDiv.appendChild(document.createTextNode(message));
+					}
+					bgnode.appendChild(textOrDiv);
+					bgnode.appendChild(timeNode);
+                    node.appendChild(bgnode);
+                    document.getElementById("ChatWindow").appendChild(node);
+                    updateScroll();
+          		notifyText=sender+" >  "+message;
+          		senderV=sender;
+                }
+				document.cookie = chatName+"_msg_count="+i+";";
+                if(senderV !== document.getElementById("text1").value)
+                {
+                 notifyMe(sender,message);
+                 }
+                
+            }
+            function errorMsg()
+            {
+                console.log("Error Occured!!!");
+            }
+            function enteKeyFunction(event)
+            {
+            
+            	//((e.keyCode || e.which) == 13)
+            	if(event.which == 13)
+	    	{
+            		sendMessage();
+    	    	}
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+  if (!Notification) {
+    alert('Desktop notifications not available in your browser. Try Chromium.'); 
+    return;
+  }
+
+  if (Notification.permission !== "granted")
+    Notification.requestPermission();
+});
+
+function notifyMe(sender,message) {
+Notification.permission="granted";
+  if (Notification.permission !== "granted")
+  {
+    Notification.requestPermission();
+    }
+  else {
+    var notification = new Notification('Message from '+sender, {
+      icon: 'http://bigdutchmanusa.com/wp-content/uploads/2014/06/broiler.png',
+      body: message,
+    });
+  }
+
+}
+
+function updateScroll(){
+    var element = document.getElementById("ChatWindow");
+    element.scrollTop = element.scrollHeight;
+}
+
+function getCurrentTime()
+{
+	var today = new Date();
+	var hr=today.getHours();
+	var mi = today.getMinutes();
+	var ap = "AM";
+	hr = hr < 13 ? hr : hr-12 , ap="PM";
+	hr = hr <10 ? "0"+hr : hr;
+	mi = mi < 10 ? "0"+mi : mi;
+	return (hr+ ":" + mi +" "+ap);
+}
+function getCurrentDate()
+{
+	var today = new Date();
+	var date = today.getDate();
+	var month = today.getMonth()+1;
+	date = date <10 ? "0"+date : date;
+	month = month <10 ? "0"+month:month;
+	return date+'-'+month+'-'+today.getFullYear();
+}
+
+function getUser()
+{
+	username = getCookie(chatName+"_username");
+	document.cookie = chatName+"_msg_count=0;";
+	if(username!="")
+	{
+		document.getElementById("text1").value=username;
+		startChat();
+	}
+	
+}
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+        </script>
+		<title>Koli Messenger</title>
+    </head>
+    <body onload="getUser()">
+        <div id="MyName">
+            Enter your Name : <input type="text" id="text1">&nbsp&nbsp<input type="button" value="Ok" onclick="startChat(),location.reload()">
+        </div>
+        <div id="ChatRoom" style="display:none;height:500px;width:800px">
+            <div id="ChatWindow" style="height:500px;width:800px;border-style:solid;overflow:auto" >
+                
+            </div>
+            <br>
+			<div style="float:left;display:inline-block">
+				<textarea id="msg1" cols="80" rows="5" onkeypress="enteKeyFunction(event)"></textarea>
+			</div>
+			
+			<div style="float:right;display:inline-block">
+				<input type="button" value="Send" onclick="sendMessage();" style="width:100;height:100">
+			<div>
+        </div>
+    </body>
+</html>
