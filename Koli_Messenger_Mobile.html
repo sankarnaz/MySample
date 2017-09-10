@@ -54,8 +54,8 @@
 
             function startChat()
             {
-				username = document.getElementById("text1").value;
-				document.cookie = chatName+"_username="+username+"; expires=Thu, 18 Dec 2017 12:00:00 UTC";
+		username = document.getElementById("text1").value;
+		document.cookie = chatName+"_username="+username+"; expires=Thu, 18 Dec 2017 12:00:00 UTC";
                 document.getElementById("MyName").style.display="none";
                 document.getElementById("ChatRoom").style.display="block";
             }
@@ -83,10 +83,9 @@
                 //document.getElementById("ChatWindow").innerHTML="";
                 var notifyText;
                 var senderV;
-				var msgCount = getCookie(chatName+"_msg_count");
-				console.log("--->>> "+msgCount+"-----New---- <<<---"+keys.length);
-                for(i=msgCount;i<keys.length;i++)
-                {console.log("--->>> "+msgCount);
+		//var msgCount = getCookie(chatName+"_msg_count");
+                for(i=0;i<keys.length;i++)
+                {
                     var sender = msg[keys[i]].name;
                     var message = msg[keys[i]].value.msg;
 					var time = msg[keys[i]].value.time;
@@ -134,7 +133,7 @@
           		notifyText=sender+" >  "+message;
           		senderV=sender;
                 }
-				document.cookie = chatName+"_msg_count="+i+";";
+		//document.cookie = chatName+"_msg_count="+i+";";
                 if(senderV !== document.getElementById("text1").value)
                 {
                  notifyMe(sender,message);
@@ -208,7 +207,7 @@ function getCurrentDate()
 function getUser()
 {
 	username = getCookie(chatName+"_username");
-	document.cookie = chatName+"_msg_count=0;";
+	//document.cookie = chatName+"_msg_count=0;";
 	if(username!="")
 	{
 		document.getElementById("text1").value=username;
