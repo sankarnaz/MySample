@@ -189,8 +189,8 @@ function getCurrentTime()
 	var today = new Date();
 	var hr=today.getHours();
 	var mi = today.getMinutes();
-	var ap = "AM";
-	hr = hr < 13 ? hr : hr-12 , ap="PM";
+	var ap = hr < 13 ? "AM":"PM";
+	hr = hr < 13 ? hr : hr-12;
 	hr = hr <10 ? "0"+hr : hr;
 	mi = mi < 10 ? "0"+mi : mi;
 	return (hr+ ":" + mi +" "+ap);
