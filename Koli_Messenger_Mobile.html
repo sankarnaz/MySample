@@ -46,7 +46,7 @@
                         };
             firebase.initializeApp(config);
             var db = firebase.database();
-			var chatName = "SaRaThy";
+			var chatName = "Test_Chat";//SaRaThy
             var ref = db.ref(chatName);
             ref.on('value',receiveMessage,errorMsg);
 			var mdate;			
